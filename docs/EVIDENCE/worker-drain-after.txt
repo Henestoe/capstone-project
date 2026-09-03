@@ -1,0 +1,22 @@
+NAMESPACE      NAME                                       READY   STATUS      RESTARTS      AGE   IP           NODE            NOMINATED NODE   READINESS GATES
+argocd         argocd-application-controller-0            1/1     Running     1 (16h ago)   19h   10.42.0.6    control-plane   <none>           <none>
+argocd         argocd-redis-d94f6c79b-p45md               1/1     Running     0             19h   10.42.2.2    worker-2        <none>           <none>
+argocd         argocd-repo-server-6f5f9bf5fd-27sn6        1/1     Running     0             10m   10.42.2.13   worker-2        <none>           <none>
+argocd         argocd-server-855795b466-hsflh             1/1     Running     0             10m   10.42.0.18   control-plane   <none>           <none>
+cert-manager   cert-manager-5db8577c6c-zfrgq              1/1     Running     0             11h   10.42.2.8    worker-2        <none>           <none>
+cert-manager   cert-manager-cainjector-7489f7bfb8-8rmdk   1/1     Running     0             11h   10.42.2.7    worker-2        <none>           <none>
+cert-manager   cert-manager-webhook-7b4c896fdd-lvmw6      1/1     Running     0             11h   10.42.0.9    control-plane   <none>           <none>
+kube-system    coredns-fddcf74bb-kzwfn                    1/1     Running     1 (16h ago)   20h   10.42.0.7    control-plane   <none>           <none>
+kube-system    local-path-provisioner-5db9d5cbbb-xxfzc    1/1     Running     1 (16h ago)   20h   10.42.0.5    control-plane   <none>           <none>
+kube-system    metrics-server-77cc7bd5d8-wnsl5            1/1     Running     0             22m   10.42.0.17   control-plane   <none>           <none>
+kube-system    svclb-traefik-7cdf43bb-6j4s6               2/2     Running     0             12h   10.42.2.5    worker-2        <none>           <none>
+kube-system    svclb-traefik-7cdf43bb-7lwcn               2/2     Running     0             12h   10.42.1.5    worker-1        <none>           <none>
+kube-system    svclb-traefik-7cdf43bb-r6xcv               2/2     Running     0             12h   10.42.0.8    control-plane   <none>           <none>
+taskapp        backend-868855c7c8-mg6dn                   1/1     Running     0             10m   10.42.2.12   worker-2        <none>           <none>
+taskapp        backend-868855c7c8-qjwqc                   1/1     Running     0             56m   10.42.0.16   control-plane   <none>           <none>
+taskapp        frontend-5467678f45-4jjn2                  1/1     Running     0             57m   10.42.2.10   worker-2        <none>           <none>
+taskapp        frontend-5467678f45-jp99m                  1/1     Running     0             10m   10.42.0.19   control-plane   <none>           <none>
+taskapp        postgres-0                                 1/1     Running     0             72m   10.42.0.15   control-plane   <none>           <none>
+taskapp        taskapp-migrations-2qg8r                   0/1     Completed   0             47m   10.42.2.11   worker-2        <none>           <none>
+traefik        traefik-67857cbdf7-vzdwr                   1/1     Running     0             12h   10.42.2.6    worker-2        <none>           <none>
+traefik        traefik-67857cbdf7-wvwmf                   1/1     Running     0             10m   10.42.0.20   control-plane   <none>           <none>

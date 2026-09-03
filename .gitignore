@@ -22,6 +22,7 @@ node-token
 *.pem
 *.key
 id_rsa*
+.env.taskapp
 
 # argo / helm local
 charts/*.tgz
@@ -31,3 +32,9 @@ charts/*.tgz
 *.swp
 .idea/
 .vscode/
+
+# Terraform saved plans
+*.tfplan
+/infra/terraform/terraform-backend/taskapp
+
+.venv/

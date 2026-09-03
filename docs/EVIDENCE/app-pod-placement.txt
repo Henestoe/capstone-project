@@ -1,0 +1,7 @@
+NAME                       READY   STATUS      RESTARTS   AGE    IP           NODE            NOMINATED NODE   READINESS GATES
+backend-748cf97dd4-4hprz   1/1     Running     0          15m    10.42.2.9    worker-2        <none>           <none>
+backend-748cf97dd4-9qbcz   1/1     Running     0          15m    10.42.0.13   control-plane   <none>           <none>
+frontend-cfd8cc567-9ctql   1/1     Running     0          15m    10.42.1.7    worker-1        <none>           <none>
+frontend-cfd8cc567-b967k   1/1     Running     0          15m    10.42.0.14   control-plane   <none>           <none>
+postgres-0                 1/1     Running     0          68m    10.42.0.12   control-plane   <none>           <none>
+taskapp-migrations-g5zj5   0/1     Completed   0          4m5s   10.42.1.9    worker-1        <none>           <none>

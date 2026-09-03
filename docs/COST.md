@@ -1,25 +1,28 @@
-# Cost (fill this in)
+# Infrastructure Cost
 
-This echoes the Docker lesson's "why one server" thread — except now the answer to "is the
-extra cost worth it?" is yours to argue.
+Estimated monthly cost for us-east-1, running 730 hours, before tax
+and credits. Prices checked September 2026.
 
-## Monthly itemized cost
-| Item | Spec | Qty | $/mo |
-|---|---|---:|---:|
-| control-plane VM | … | 1 | … |
-| worker VMs | … | 2+ | … |
-| load balancer / elastic IP | … | … | … |
-| block storage (PVC) | … | … | … |
-| object storage (state, backups) | … | … | … |
-| DNS / domain | … | … | … |
-| **Total** | | | **$…** |
+| Resource | Monthly estimate |
+|---|---:|
+| 1 t3.medium control plane | $30.51 |
+| 2 t3.small workers | $30.51 |
+| 90 GB gp3 storage | $7.20 |
+| 3 public IPv4 addresses | $10.95 |
+| S3 state and DynamoDB locking allowance | $1.00 |
+| **AWS total** | **$80.17** |
 
-## Compared to the single-server Compose+Portainer deploy
-- That stack cost roughly: $…
-- This cluster costs: $…
-- **What the extra spend buys** (be honest — tie to §0 of the brief): HA, autoscale,
-  zero-downtime, multi-node self-healing. When is it NOT worth it? …
+Postgres uses the existing root disk, so its PVC adds no separate
+volume charge. Domain renewal and additional data transfer are excluded.
+Domain cost is the GoDaddy annual renewal price divided by 12.
 
-## How I'd halve this
-> One concrete paragraph: spot/preemptible workers? smaller control-plane? k3s on 2 nodes?
-> shared ingress? …
+An equivalent single t3.medium server would cost approximately
+$36.56/month. The extra nodes support application redundancy and
+worker-failure recovery, but Postgres remains a single point of failure.
+
+## Halving the cost
+
+For this learning environment, running all three nodes around 10 hours
+daily would reduce the estimate to roughly $38/month. Disks remain
+billable while stopped. This sacrifices continuous availability, and
+changed public IPs require DNS and inventory updates.

@@ -1,0 +1,73 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: traefik
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    repoURL: https://traefik.github.io/charts
+    chart: traefik
+    targetRevision: "41.4.0"
+    helm:
+      valuesObject:
+        image:
+          tag: "v3.7.12"
+
+        deployment:
+          replicas: 2
+
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: traefik
+
+        service:
+          type: LoadBalancer
+
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+          name: traefik
+
+        ingressRoute:
+          dashboard:
+            enabled: false
+
+        startupProbe:
+          httpGet:
+            path: /ping
+            port: traefik
+          periodSeconds: 5
+          failureThreshold: 30
+
+        updateStrategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: 0
+            maxSurge: 1
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

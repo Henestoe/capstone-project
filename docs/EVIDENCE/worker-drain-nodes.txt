@@ -1,0 +1,4 @@
+NAME            STATUS                     ROLES           AGE   VERSION
+control-plane   Ready                      control-plane   20h   v1.34.10+k3s1
+worker-1        Ready,SchedulingDisabled   <none>          20h   v1.34.10+k3s1
+worker-2        Ready                      <none>          20h   v1.34.10+k3s1

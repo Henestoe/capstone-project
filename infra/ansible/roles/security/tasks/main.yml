@@ -1,0 +1,100 @@
+---
+- name: Install UFW
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+
+- name: Configure SSH authentication
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-taskapp.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PubkeyAuthentication yes
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload SSH
+
+- name: Check the complete SSH configuration
+  ansible.builtin.command: /usr/sbin/sshd -t
+  changed_when: false
+
+- name: Allow SSH from the administrator
+  community.general.ufw:
+    rule: allow
+    from_ip: "{{ security_ssh_cidr }}"
+    to_port: "22"
+    proto: tcp
+
+- name: Allow HTTP and HTTPS
+  community.general.ufw:
+    rule: allow
+    to_port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "80"
+    - "443"
+
+- name: Allow the Kubernetes API from the node subnet
+  community.general.ufw:
+    rule: allow
+    from_ip: "{{ security_node_cidr }}"
+    to_port: "6443"
+    proto: tcp
+  when: inventory_hostname in groups['k3s_server']
+
+- name: Allow Flannel traffic between nodes
+  community.general.ufw:
+    rule: allow
+    from_ip: "{{ security_node_cidr }}"
+    to_port: "8472"
+    proto: udp
+
+- name: Allow kubelet traffic between nodes
+  community.general.ufw:
+    rule: allow
+    from_ip: "{{ security_node_cidr }}"
+    to_port: "10250"
+    proto: tcp
+
+- name: Allow traffic from Kubernetes networks
+  community.general.ufw:
+    rule: allow
+    from_ip: "{{ item }}"
+  loop:
+    - "{{ security_pod_cidr }}"
+    - "{{ security_service_cidr }}"
+
+- name: Allow forwarding from Pods
+  community.general.ufw:
+    rule: allow
+    route: true
+    from_ip: "{{ security_pod_cidr }}"
+
+- name: Allow forwarding to Pods
+  community.general.ufw:
+    rule: allow
+    route: true
+    to_ip: "{{ security_pod_cidr }}"
+
+- name: Deny other incoming traffic
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Allow outgoing traffic
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+
+- name: Deny other forwarded traffic
+  community.general.ufw:
+    direction: routed
+    policy: deny
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled

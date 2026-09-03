@@ -1,0 +1,105 @@
+---
+- name: Create the k3s configuration directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure the k3s server
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      node-name: "{{ inventory_hostname }}"
+      node-ip: "{{ private_ip }}"
+      advertise-address: "{{ private_ip }}"
+      write-kubeconfig-mode: "0600"
+      cluster-cidr: "{{ security_pod_cidr }}"
+      service-cidr: "{{ security_service_cidr }}"
+      disable:
+        - traefik
+        - metrics-server
+  notify: Restart k3s
+
+- name: Download the pinned k3s installer
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version }}/install.sh"
+    dest: "/usr/local/src/k3s-install-{{ k3s_version }}.sh"
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
+
+- name: Check the installed k3s version
+  ansible.builtin.command: /usr/local/bin/k3s --version
+  register: k3s_server_installed
+  changed_when: false
+  failed_when: false
+
+- name: Install the required k3s version
+  ansible.builtin.command:
+    cmd: "/bin/sh /usr/local/src/k3s-install-{{ k3s_version }}.sh"
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: server
+    INSTALL_K3S_SKIP_START: "true"
+  when: k3s_version not in k3s_server_installed.stdout
+  changed_when: true
+  notify: Restart k3s
+
+- name: Enable and start k3s
+  ansible.builtin.systemd_service:
+    name: k3s
+    enabled: true
+    state: started
+
+- name: Apply pending service changes
+  ansible.builtin.meta: flush_handlers
+
+- name: Wait for the control-plane node to become Ready
+  ansible.builtin.command:
+    cmd: >-
+      /usr/local/bin/k3s kubectl wait
+      --for=condition=Ready
+      node/{{ inventory_hostname }}
+      --timeout=180s
+  changed_when: false
+
+- name: Read the worker join token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: k3s_server_token
+  no_log: true
+
+- name: Read the administrator kubeconfig
+  ansible.builtin.slurp:
+    src: /etc/rancher/k3s/k3s.yaml
+  register: k3s_server_kubeconfig
+  no_log: true
+
+- name: Create a private kubeconfig directory on the laptop
+  ansible.builtin.file:
+    path: "{{ playbook_dir }}/kubeconfig"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+  become: false
+
+- name: Save kubeconfig for SSH tunnel access
+  ansible.builtin.copy:
+    dest: "{{ playbook_dir }}/kubeconfig/k3s.yaml"
+    mode: "0600"
+    content: >-
+      {{
+        k3s_server_kubeconfig.content
+        | b64decode
+        | replace('https://127.0.0.1:6443', 'https://127.0.0.1:16443')
+      }}
+  delegate_to: localhost
+  become: false
+  no_log: true
+  diff: false

@@ -1,0 +1,58 @@
+---
+- name: Create the k3s configuration directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure the k3s agent
+  ansible.builtin.copy:
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0600"
+    content: |
+      server: "https://{{ hostvars['control-plane'].private_ip }}:6443"
+      token: "{{ hostvars['control-plane'].k3s_server_token.content | b64decode | trim }}"
+      node-name: "{{ inventory_hostname }}"
+      node-ip: "{{ private_ip }}"
+  no_log: true
+  diff: false
+  notify: Restart k3s agent
+
+- name: Download the pinned k3s installer
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/k3s-io/k3s/{{ k3s_version }}/install.sh"
+    dest: "/usr/local/src/k3s-install-{{ k3s_version }}.sh"
+    owner: root
+    group: root
+    mode: "0644"
+    force: false
+
+- name: Check the installed k3s version
+  ansible.builtin.command: /usr/local/bin/k3s --version
+  register: k3s_agent_installed
+  changed_when: false
+  failed_when: false
+
+- name: Install the required k3s agent version
+  ansible.builtin.command:
+    cmd: "/bin/sh /usr/local/src/k3s-install-{{ k3s_version }}.sh"
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    INSTALL_K3S_EXEC: agent
+    INSTALL_K3S_SKIP_START: "true"
+  when: k3s_version not in k3s_agent_installed.stdout
+  changed_when: true
+  notify: Restart k3s agent
+
+- name: Enable and start the k3s agent
+  ansible.builtin.systemd_service:
+    name: k3s-agent
+    enabled: true
+    state: started
+
+- name: Apply pending service changes
+  ansible.builtin.meta: flush_handlers

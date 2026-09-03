@@ -1,0 +1,18 @@
+node/worker-1 cordoned
+error: unable to drain node "worker-1" due to error: cannot delete Pods with local storage (use --delete-emptydir-data to override): argocd/argocd-repo-server-6f5f9bf5fd-lx8gw, argocd/argocd-server-855795b466-rlmtd, traefik/traefik-67857cbdf7-j5gqn, continuing command...
+There are pending nodes to be drained:
+ worker-1
+cannot delete Pods with local storage (use --delete-emptydir-data to override): argocd/argocd-repo-server-6f5f9bf5fd-lx8gw, argocd/argocd-server-855795b466-rlmtd, traefik/traefik-67857cbdf7-j5gqn
+node/worker-1 already cordoned
+Warning: ignoring DaemonSet-managed Pods: kube-system/svclb-traefik-7cdf43bb-7lwcn
+evicting pod traefik/traefik-67857cbdf7-j5gqn
+evicting pod argocd/argocd-server-855795b466-rlmtd
+evicting pod taskapp/backend-868855c7c8-dx9q2
+evicting pod taskapp/frontend-5467678f45-2smmv
+evicting pod argocd/argocd-repo-server-6f5f9bf5fd-lx8gw
+pod/argocd-repo-server-6f5f9bf5fd-lx8gw evicted
+pod/traefik-67857cbdf7-j5gqn evicted
+pod/frontend-5467678f45-2smmv evicted
+pod/argocd-server-855795b466-rlmtd evicted
+pod/backend-868855c7c8-dx9q2 evicted
+node/worker-1 drained

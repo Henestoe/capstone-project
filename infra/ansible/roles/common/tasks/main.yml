@@ -1,0 +1,68 @@
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - git
+      - jq
+      - unzip
+      - vim
+      - wget
+    state: present
+
+- name: Check whether swap is active
+  ansible.builtin.command: swapon --show --noheadings
+  register: common_active_swap
+  changed_when: false
+
+- name: Disable active swap
+  ansible.builtin.command: swapoff -a
+  when: common_active_swap.stdout | length > 0
+  changed_when: true
+
+- name: Disable swap entries in fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*[^#\s]\S*\s+\S+\s+swap\s+.*)$'
+    replace: '# \1'
+    backup: true
+
+- name: Load required kernel modules
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Configure kernel modules to load at boot
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/k3s.conf
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      overlay
+      br_netfilter
+
+- name: Configure Kubernetes network settings
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_set: true
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-kubernetes.conf
+  loop:
+    - name: net.bridge.bridge-nf-call-iptables
+      value: "1"
+    - name: net.bridge.bridge-nf-call-ip6tables
+      value: "1"
+    - name: net.ipv4.ip_forward
+      value: "1"

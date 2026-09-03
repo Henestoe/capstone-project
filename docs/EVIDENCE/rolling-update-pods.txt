@@ -1,0 +1,7 @@
+NAME                        READY   STATUS      RESTARTS   AGE    IP           NODE            NOMINATED NODE   READINESS GATES
+backend-868855c7c8-dx9q2    1/1     Running     0          80s    10.42.1.13   worker-1        <none>           <none>
+backend-868855c7c8-qjwqc    1/1     Running     0          69s    10.42.0.16   control-plane   <none>           <none>
+frontend-5467678f45-2smmv   1/1     Running     0          99s    10.42.1.11   worker-1        <none>           <none>
+frontend-5467678f45-4jjn2   1/1     Running     0          110s   10.42.2.10   worker-2        <none>           <none>
+postgres-0                  1/1     Running     0          17m    10.42.0.15   control-plane   <none>           <none>
+taskapp-migrations-s75g7    0/1     Completed   0          87s    10.42.1.12   worker-1        <none>           <none>

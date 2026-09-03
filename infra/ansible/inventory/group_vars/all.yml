@@ -1,0 +1,11 @@
+---
+ansible_user: ubuntu
+ansible_ssh_private_key_file: /home/henex/.ssh/taskapp
+ansible_python_interpreter: /usr/bin/python3
+
+security_ssh_cidr: "102.89.85.130/32"
+security_node_cidr: "10.0.1.0/24"
+security_pod_cidr: "10.42.0.0/16"
+security_service_cidr: "10.43.0.0/16"
+
+k3s_version: "v1.34.10+k3s1"
