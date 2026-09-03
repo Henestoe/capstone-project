@@ -7,3 +7,10 @@ metadata:
 data:
   POSTGRES_DB: "taskapp"
   POSTGRES_USER: "taskapp"
+
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "taskapp"
+  DATABASE_USER: "taskapp"
+
+  CORS_ORIGINS: "https://taskapp.hph-info.xyz"
