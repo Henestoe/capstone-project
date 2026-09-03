@@ -1,0 +1,53 @@
+---
+- name: Bootstrap Argo CD
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  become: false
+
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  tasks:
+    - name: Add the Argo Helm repository
+      kubernetes.core.helm_repository:
+        name: argo
+        repo_url: https://argoproj.github.io/argo-helm
+
+    - name: Install Argo CD
+      kubernetes.core.helm:
+        name: argocd
+        chart_ref: argo/argo-cd
+        chart_version: "10.6.4"
+        release_namespace: argocd
+        create_namespace: true
+        kubeconfig: "{{ playbook_dir }}/kubeconfig/k3s.yaml"
+        values_files:
+          - "{{ playbook_dir }}/../../gitops/values/argocd-values.yml"
+        update_repo_cache: true
+        wait: true
+        timeout: 10m0s
+
+    - name: Register TaskApp with Argo CD
+      kubernetes.core.k8s:
+        state: present
+        kubeconfig: "{{ playbook_dir }}/kubeconfig/k3s.yaml"
+        src: "{{ playbook_dir }}/../../gitops/applications/taskapp.yml"
+
+    - name: Register Traefik with Argo CD
+      kubernetes.core.k8s:
+        state: present
+        kubeconfig: "{{ playbook_dir }}/kubeconfig/k3s.yaml"
+        src: "{{ playbook_dir }}/../../gitops/applications/traefik.yml"
+
+    - name: Register cert-manager with Argo CD
+      kubernetes.core.k8s:
+        state: present
+        kubeconfig: "{{ playbook_dir }}/kubeconfig/k3s.yaml"
+        src: "{{ playbook_dir }}/../../gitops/applications/cert-manager.yml"
+
+    - name: Register metrics-server with Argo CD
+      kubernetes.core.k8s:
+        state: present
+        kubeconfig: "{{ playbook_dir }}/kubeconfig/k3s.yaml"
+        src: "{{ playbook_dir }}/../../gitops/applications/metrics-server.yml"
