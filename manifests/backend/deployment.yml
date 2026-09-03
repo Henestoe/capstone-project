@@ -22,6 +22,8 @@ spec:
 
   template:
     metadata:
+      annotations:
+        rollout-test: "1"
       labels:
         app: backend
 
