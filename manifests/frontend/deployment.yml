@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: frontend
   namespace: taskapp
-  anotations:
+  annotations:
     argocd.argoproj.io/sync-wave: "2"
 
 spec:
